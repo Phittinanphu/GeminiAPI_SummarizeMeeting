@@ -24,10 +24,11 @@ if st.button("Generate"):
     if prompt:
         response = model.generate_content(prompt, stream=True)
 
-        response_container = st.empty() 
-
+        response_container = st.empty()
+        
         for chunk in response:
-            response_container.text_area("Gemini Response:", chunk.text)
+            response.resolve()
+            response_container.text_area("Gemini Response:",response.text, key=f"text_area_{chunk}")
                 
                 
 
