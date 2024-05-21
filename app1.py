@@ -1,5 +1,5 @@
 import streamlit as st
-from pydub import AudioSegment
+#from pydub import AudioSegment
 import tempfile
 import os
 import google.generativeai as genai
@@ -10,12 +10,12 @@ load_dotenv()
 
 # Configure Google API for audio summarization
 gemini_api_key = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=gemini_api_key)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/phitt/OneDrive/Documents/GitHub/GeminiAPI_SummarizeMeeting/gemini-api-424003-6ac26a951d8e.json"
-model = genai.GenerativeModel('gemini-pro')
 
 def summarize_audio(audio_file_path):
     """Summarize the audio using Google's Generative API."""
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel("models/gemini-1.5-pro-latest")
     audio_file = genai.upload_file(path=audio_file_path)
     response = model.generate_content(
         [
@@ -23,7 +23,8 @@ def summarize_audio(audio_file_path):
             audio_file
         ]
     )
-    return response.text
+    token = model.count_tokens(response.text)
+    return response.text, token
 
 def save_uploaded_file(uploaded_file):
     """Save uploaded file to a temporary file and return the path."""
@@ -53,3 +54,5 @@ if audio_file is not None:
         with st.spinner('Summarizing...'):
             summary_text = summarize_audio(audio_path)
             st.info(summary_text)
+            
+            
