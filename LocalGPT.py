@@ -29,7 +29,4 @@ if st.button("Generate"):
         for chunk in response:
             response.resolve()
             response_container.text_area("Gemini Response:",response.text, key=f"text_area_{chunk}")
-                
-                
-
-# /Users/phitt/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/LocalCache/local-packages/Python311/site-packages/streamlit
+            
