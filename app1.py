@@ -1,5 +1,4 @@
 import streamlit as st
-#from pydub import AudioSegment
 import tempfile
 import os
 import google.generativeai as genai
@@ -19,12 +18,15 @@ def summarize_audio(audio_file_path):
     audio_file = genai.upload_file(path=audio_file_path)
     response = model.generate_content(
         [
-            "Please summarize the following audio.",
+            # Encourage bullet points by starting the prompt with them
+            "- Please summarize the following audio in bullet points:",
             audio_file
         ]
     )
     token = model.count_tokens(response.text)
-    return response.text, token
+    # Convert escaped newlines (\n) to actual newlines
+    formatted_text = response.text.replace("\n", "<br>")
+    return formatted_text, token
 
 def save_uploaded_file(uploaded_file):
     """Save uploaded file to a temporary file and return the path."""
@@ -45,14 +47,15 @@ with st.expander("About this app"):
         Upload your audio file in WAV or MP3 format and get a concise summary of its content.
     """)
 
-audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp4'])
-if audio_file is not None:
-    audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
-    st.audio(audio_path)
+audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp3'])
 
-    if st.button('Summarize Audio'):
-        with st.spinner('Summarizing...'):
-            summary_text = summarize_audio(audio_path)
-            st.info(summary_text)
+# Displaying the summary
+if st.button('Summarize Audio'):
+    audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
+    with st.spinner('Summarizing...'):
+        summary_text, token_count = summarize_audio(audio_path)
+        st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
+        st.info(f"{token_count}") # Display token usage
+
             
             
