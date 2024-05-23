@@ -12,8 +12,8 @@ gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/phitt/OneDrive/Documents/GitHub/GeminiAPI_SummarizeMeeting/gemini-api-424003-6ac26a951d8e.json"
 
-start_keyword = "Current week"
-end_keyword = "The end"
+#start_keyword = "Current week"
+#end_keyword = "The end"
 
 def summarize_audio(audio_file_path):
     """Summarize the audio using Google's Generative API."""
@@ -22,7 +22,7 @@ def summarize_audio(audio_file_path):
     response = model.generate_content(
         [
             # Encourage bullet points by starting the prompt with them
-            "- Please summarize the following audio, summarize everything that starting from the word 'current week' and ending before the word 'the end':. Remember it can have more than one",
+            "Base on this audio, what will each person do in the current week, and please provide the name of the person",
             audio_file
         ]
     )
