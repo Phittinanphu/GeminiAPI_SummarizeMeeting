@@ -22,7 +22,7 @@ def summarize_audio(audio_file_path):
     response = model.generate_content(
         [
             # Encourage bullet points by starting the prompt with them
-            "Base on this audio, what will each person do in the current week, and please provide the name of the person",
+            "Base on this audio, what will each person do in the current week, and please provide the name of each person",
             audio_file
         ]
     )
