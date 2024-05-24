@@ -22,7 +22,7 @@ def summarize_audio(audio_file_path):
     response = model.generate_content(
         [
             # Encourage bullet points by starting the prompt with them
-            "Please summarize the key action items from this meeting, listing each task along with the person responsible and the due date.",
+            "จงสรุปว่าใครกำลังทำอะไรในสัปดาห์นี้ โดยอ้างอิงจากการสนทนาในการประชุมครั้งนี้",
             audio_file
         ]
     )
@@ -59,3 +59,8 @@ if st.button('Summarize Audio'):
         summary_text, token_count = summarize_audio(audio_path)
         st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
         st.info(f"{token_count}") # Display token usage
+        
+        
+
+#prompt
+# Please summarize the key action items from this meeting, listing each task along with the person responsible and the due date. Answer in Thai language
