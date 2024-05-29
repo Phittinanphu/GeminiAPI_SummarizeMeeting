@@ -22,7 +22,14 @@ def summarize_audio(audio_file_path):
     response = model.generate_content(
         [
             # Encourage bullet points by starting the prompt with them
-            "จงสรุปว่าใครกำลังทำอะไรในสัปดาห์นี้ โดยอ้างอิงจากการสนทนาในการประชุมครั้งนี้",
+            """The attached audio file is a presentation or the conversation in the meeting. 
+            Your task is to summarize every detail that mentioned in the audio file. 
+            If it is a presentation:
+            1.Summarize every detail that the speaker mentioned
+            2.If there are many speaker in the presentation, summarize every detail that each speaker mentioned
+            If it is a conversation in the meeting
+            1.Summarize every detail in the meeting
+            2.Summarize that what will each person have plane to do in this week)""",
             audio_file
         ]
     )
@@ -64,3 +71,5 @@ if st.button('Summarize Audio'):
 
 #prompt
 # Please summarize the key action items from this meeting, listing each task along with the person responsible and the due date. Answer in Thai language
+# จงสรุปว่าใครกำลังทำอะไรในสัปดาห์นี้ โดยอ้างอิงจากการสนทนาในการประชุมครั้งนี้
+# According to this audio file, summarize all detail that the speaker talk about, especially the capability of their products
