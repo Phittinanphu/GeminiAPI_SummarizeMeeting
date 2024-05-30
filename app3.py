@@ -53,13 +53,11 @@ def save_uploaded_file(uploaded_file):
         return None
 
 def convert_to_mp3(audio_file_path):
-    """Convert audio file to MP3 format."""
-    if audio_file_path.endswith('.m4a'):
-        audio = AudioSegment.from_file(audio_file_path, format='m4a')
-        mp3_file_path = audio_file_path.replace('.m4a', '.mp3')
-        audio.export(mp3_file_path, format='mp3')
-        return mp3_file_path
-    return audio_file_path
+    """Convert an audio file to mp3 format using pydub."""
+    audio = AudioSegment.from_file(audio_file_path)
+    mp3_file_path = audio_file_path.replace(audio_file_path.split('.')[-1], 'mp3')
+    audio.export(mp3_file_path, format='mp3')
+    return mp3_file_path
 
 def answer_question(summary_text, question):
     """Generate an answer to the question based on the summary text."""
@@ -96,15 +94,12 @@ if 'chat_history' not in st.session_state:
 
 if st.button('Summarize Audio'):
     audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
-    if audio_path:
-        audio_path = convert_to_mp3(audio_path)  # Convert to MP3 if necessary
-        if audio_path:
-            with st.spinner('Summarizing...'):
-                summary_text, token_count = summarize_audio(audio_path)
-                st.session_state['summary'] = summary_text
-                st.session_state['chat_history'] = []
-                st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
-                st.info(f"Token usage: {token_count}")
+    with st.spinner('Summarizing...'):
+        summary_text, token_count = summarize_audio(audio_path)
+        st.session_state['summary'] = summary_text
+        st.session_state['chat_history'] = []
+        st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
+        st.info(f"Token usage: {token_count}")
             
             
 # Multi-turn chat interface
