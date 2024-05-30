@@ -1,0 +1,6 @@
+streamlit
+tempfile
+os
+google.generativeai
+pydub
+dotenv
