@@ -60,6 +60,20 @@ def convert_to_mp3(audio_file_path):
         audio.export(mp3_file_path, format='mp3')
         return mp3_file_path
     return audio_file_path
+
+def answer_question(summary_text, question):
+    """Generate an answer to the question based on the summary text."""
+    try:
+        model = genai.GenerativeModel("models/gemini-1.5-pro-latest")
+        response = model.generate_content(
+            [
+                f"Based on the following summary, please answer the question:\n\n{summary_text}\n\nQuestion: {question}"
+            ]
+        )
+        return response.text
+    except Exception as e:
+        st.error(f"Error generating answer: {e}")
+        return ""
     
     
 # Streamlit app interface
@@ -75,17 +89,39 @@ with st.expander("About this app"):
 audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp3', 'm4a'])
 
 # Displaying the summary
+if 'summary' not in st.session_state:
+    st.session_state['summary'] = ""
+if 'chat_history' not in st.session_state:
+    st.session_state['chat_history'] = []
+
 if st.button('Summarize Audio'):
     audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
     if audio_path:
         audio_path = convert_to_mp3(audio_path)  # Convert to MP3 if necessary
-        with st.spinner('Summarizing...'):
-            summary_text, token_count = summarize_audio(audio_path)
-            st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
-            st.info(f"Token usage: {token_count}")
-        
-        
+        if audio_path:
+            with st.spinner('Summarizing...'):
+                summary_text, token_count = summarize_audio(audio_path)
+                st.session_state['summary'] = summary_text
+                st.session_state['chat_history'] = []
+                st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
+                st.info(f"Token usage: {token_count}")
+            
+            
+# Multi-turn chat interface
+if st.session_state['summary']:
+    st.subheader("Chat with the Summary")
+    user_question = st.text_input("Ask a question about the summary:")
+    if st.button('Ask'):
+        if user_question:
+            with st.spinner('Answering...'):
+                answer = answer_question(st.session_state['summary'], user_question)
+                st.session_state['chat_history'].append((user_question, answer))
 
+    if st.session_state['chat_history']:
+        for question, answer in st.session_state['chat_history']:
+            st.markdown(f"**Question:** {question}")
+            st.markdown(f"**Answer:** {answer}")
+        
 #prompt
 # Please summarize the key action items from this meeting, listing each task along with the person responsible and the due date. Answer in Thai language
 # จงสรุปว่าใครกำลังทำอะไรในสัปดาห์นี้ โดยอ้างอิงจากการสนทนาในการประชุมครั้งนี้
