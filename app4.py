@@ -1,7 +1,11 @@
 import streamlit as st
 import tempfile
 import os
+import io
 import google.generativeai as genai
+from moviepy.editor import VideoFileClip
+from moviepy.editor import AudioFileClip
+import subprocess
 from pydub import AudioSegment
 from dotenv import load_dotenv
 
@@ -12,6 +16,8 @@ gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/phitt/OneDrive/Documents/GitHub/GeminiAPI_SummarizeMeeting/gemini-api-424003-6ac26a951d8e.json"
 
+#start_keyword = "Current week"
+#end_keyword = "The end"
 
 def summarize_audio(audio_file_path):
     """Summarize the audio using Google's Generative API."""
@@ -29,7 +35,8 @@ def summarize_audio(audio_file_path):
             1.Summarize every detail in the meeting
             2.Summarize that what will each person have plane to do in this week)""",
             audio_file
-        ])
+        ]
+    )
     token = model.count_tokens(response.text)
     # Convert escaped newlines (\n) to actual newlines
     formatted_text = response.text.replace("\n", "<br>")
@@ -45,6 +52,13 @@ def save_uploaded_file(uploaded_file):
         st.error(f"Error handling uploaded file: {e}")
         return None
 
+def convert_to_mp3(audio_file_path):
+    """Convert an audio file to mp3 format using pydub."""
+    audio = AudioSegment.from_file(audio_file_path)
+    mp3_file_path = audio_file_path.replace(audio_file_path.split('.')[-1], 'mp3')
+    audio.export(mp3_file_path, format='mp3')
+    return mp3_file_path
+
 def answer_question(summary_text, question):
     """Generate an answer to the question based on the summary text."""
     try:
@@ -59,6 +73,7 @@ def answer_question(summary_text, question):
         st.error(f"Error generating answer: {e}")
         return ""
     
+    
 # Streamlit app interface
 st.title('Audio Summarization App')
 
@@ -67,6 +82,7 @@ with st.expander("About this app"):
         This app uses Google's generative AI to summarize audio files. 
         Upload your audio file in WAV or MP3 format and get a concise summary of its content.
     """)
+
 
 audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp3', 'm4a'])
 
@@ -85,6 +101,7 @@ if st.button('Summarize Audio'):
         st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
         st.info(f"Token usage: {token_count}")
             
+            
 # Multi-turn chat interface
 if st.session_state['summary']:
     st.subheader("Chat with the Summary")
@@ -99,3 +116,8 @@ if st.session_state['summary']:
         for question, answer in st.session_state['chat_history']:
             st.markdown(f"**Question:** {question}")
             st.markdown(f"**Answer:** {answer}")
+        
+#prompt
+# Please summarize the key action items from this meeting, listing each task along with the person responsible and the due date. Answer in Thai language
+# จงสรุปว่าใครกำลังทำอะไรในสัปดาห์นี้ โดยอ้างอิงจากการสนทนาในการประชุมครั้งนี้
+# According to this audio file, summarize all detail that the speaker talk about, especially the capability of their products
