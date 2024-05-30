@@ -1,8 +1,12 @@
 import streamlit as st
 import tempfile
 import os
+import io
 import google.generativeai as genai
-
+from moviepy.editor import VideoFileClip
+from moviepy.editor import AudioFileClip
+import subprocess
+from pydub import AudioSegment
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -48,6 +52,16 @@ def save_uploaded_file(uploaded_file):
         st.error(f"Error handling uploaded file: {e}")
         return None
 
+def convert_to_mp3(audio_file_path):
+    """Convert audio file to MP3 format."""
+    if audio_file_path.endswith('.m4a'):
+        audio = AudioSegment.from_file(audio_file_path, format='m4a')
+        mp3_file_path = audio_file_path.replace('.m4a', '.mp3')
+        audio.export(mp3_file_path, format='mp3')
+        return mp3_file_path
+    return audio_file_path
+    
+    
 # Streamlit app interface
 st.title('Audio Summarization App')
 
@@ -57,15 +71,18 @@ with st.expander("About this app"):
         Upload your audio file in WAV or MP3 format and get a concise summary of its content.
     """)
 
-audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp3'])
+
+audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp3', 'm4a'])
 
 # Displaying the summary
 if st.button('Summarize Audio'):
     audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
-    with st.spinner('Summarizing...'):
-        summary_text, token_count = summarize_audio(audio_path)
-        st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
-        st.info(f"{token_count}") # Display token usage
+    if audio_path:
+        audio_path = convert_to_mp3(audio_path)  # Convert to MP3 if necessary
+        with st.spinner('Summarizing...'):
+            summary_text, token_count = summarize_audio(audio_path)
+            st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
+            st.info(f"Token usage: {token_count}")
         
         
 
