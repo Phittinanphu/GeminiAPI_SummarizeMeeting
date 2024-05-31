@@ -21,11 +21,12 @@ def summarize_audio(audio_file_path):
             """The attached audio file is a presentation or the conversation in the meeting. 
             Your task is to summarize every detail that mentioned in the audio file. 
             If it is a presentation:
-            1.Summarize every detail that the speaker mentioned
-            2.If there are many speaker in the presentation, summarize every detail that each speaker mentioned
-            If it is a conversation in the meeting
-            1.Summarize every detail in the meeting
-            2.Summarize that what will each person have plane to do in this week)""",
+            1. Summarize every detail that the speaker mentioned.
+            2. If there are many speakers in the presentation, summarize every detail that each speaker mentioned.
+            If it is a conversation in the meeting:
+            1. Summarize every detail in the meeting.
+            2. Summarize what each person plans to do in this week."""
+            ,
             audio_file
         ])
     
@@ -69,25 +70,40 @@ with st.expander("About this app"):
 
 audio_file = st.file_uploader("Upload Audio File", type=['wav', 'mp3'])
 
-# Displaying the summary
+# Initialize session state variables
 if 'summary' not in st.session_state:
     st.session_state['summary'] = ""
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
+if 'chat_started' not in st.session_state:
+    st.session_state['chat_started'] = False
 
 if st.button('Summarize Audio'):
-    audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
-    with st.spinner('Summarizing...'):
-        summary_text, token_count = summarize_audio(audio_path)
-        st.session_state['summary'] = summary_text
-        st.session_state['chat_history'] = []
-        st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
-        st.info(f"Token usage: {token_count}")
-            
+    if audio_file is not None:
+        audio_path = save_uploaded_file(audio_file)  # Save the uploaded file and get the path
+        if audio_path:
+            with st.spinner('Summarizing...'):
+                summary_text, token_count = summarize_audio(audio_path)
+                st.session_state['summary'] = summary_text
+                st.session_state['chat_history'] = []
+                st.session_state['chat_started'] = False
+                st.markdown(summary_text, unsafe_allow_html=True)  # Render HTML for newlines
+                st.info(f"Token usage: {token_count}")
+    else:
+        st.warning("Please upload an audio file first.")
+
+# Button to start the chat
+if st.session_state['summary'] and not st.session_state['chat_started']:
+    if st.button('Start Chat'):
+        st.session_state['chat_started'] = True
+
 # Multi-turn chat interface
-if st.session_state['summary']:
+if st.session_state['summary'] and st.session_state['chat_started']:
     st.subheader("Chat with the Summary")
+    st.markdown(st.session_state['summary'], unsafe_allow_html=True)
+
     user_question = st.text_input("Ask a question about the summary:")
+
     if st.button('Ask'):
         if user_question:
             with st.spinner('Answering...'):
@@ -98,3 +114,5 @@ if st.session_state['summary']:
         for question, answer in st.session_state['chat_history']:
             st.markdown(f"**Question:** {question}")
             st.markdown(f"**Answer:** {answer}")
+            st.markdown("---------------------------------")
+
