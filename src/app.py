@@ -9,7 +9,7 @@ load_dotenv()
 # Configure Google API for audio summarization
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=gemini_api_key)
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gemini-api-424003-6ac26a951d8e.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "GOOGLE_APPLICATION_CREDENTIALS"
 
 def summarize_audio(audio_file_path):
     """Summarize the audio using Google's Generative API."""
