@@ -25,7 +25,11 @@ def summarize_audio(audio_file_path):
             2. If there are many speakers in the presentation, summarize every detail that each speaker mentioned.
             If it is a conversation in the meeting:
             1. Summarize every detail in the meeting.
-            2. Summarize what each person plans to do in this week."""
+            2. Summarize what each person did in previous week.
+            3. Summarize what task each person still struggle, and does he or she need support.
+            4. From 3, if he or she need support, what is the support that he or she wants?
+            5. From 4, what is the expectation of the complete date for the task that he or she responsible for.
+            6. Summarize what each person plans to do in this week."""
             ,
             audio_file
         ])
